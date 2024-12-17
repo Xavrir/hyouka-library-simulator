@@ -2,9 +2,12 @@ import { BookOpen, Search, Heart, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AuthDialog } from "./AuthDialog";
 import { Link } from "react-router-dom";
+import { CommandDialog, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from "@/components/ui/command";
+import { useState } from "react";
+import { books } from "@/data/books";
 
 export const Navbar = () => {
-  // Mock logged-in state - in a real app, this would come from your auth context/state
+  const [open, setOpen] = useState(false);
   const isLoggedIn = true;
   const userEmail = "test1";
 
@@ -33,12 +36,10 @@ export const Navbar = () => {
                 </Link>
               </>
             )}
-            <Link to="#" className="text-gray-600 hover:text-primary-DEFAULT transition-colors">Categories</Link>
-            <Link to="#" className="text-gray-600 hover:text-primary-DEFAULT transition-colors">About</Link>
           </div>
 
           <div className="flex items-center space-x-4">
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost" size="icon" onClick={() => setOpen(true)}>
               <Search className="h-5 w-5 text-gray-600" />
             </Button>
             {isLoggedIn ? (
@@ -47,7 +48,6 @@ export const Navbar = () => {
                 <Button 
                   variant="outline"
                   onClick={() => {
-                    // Handle logout logic here
                     console.log("Logout clicked");
                   }}
                 >
@@ -63,6 +63,27 @@ export const Navbar = () => {
           </div>
         </div>
       </div>
+
+      <CommandDialog open={open} onOpenChange={setOpen}>
+        <CommandInput placeholder="Search books or browse by category..." />
+        <CommandList>
+          <CommandEmpty>No results found.</CommandEmpty>
+          <CommandGroup heading="Categories">
+            <CommandItem>Fiction</CommandItem>
+            <CommandItem>Non-Fiction</CommandItem>
+            <CommandItem>Science Fiction</CommandItem>
+            <CommandItem>Mystery</CommandItem>
+            <CommandItem>Romance</CommandItem>
+          </CommandGroup>
+          <CommandGroup heading="Books">
+            {books.map((book) => (
+              <CommandItem key={book.id}>
+                {book.title} - {book.author}
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        </CommandList>
+      </CommandDialog>
     </nav>
   );
 };
