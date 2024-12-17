@@ -1,5 +1,6 @@
-import { BookOpen, Search, User } from "lucide-react";
+import { BookOpen, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { AuthDialog } from "./AuthDialog";
 
 export const Navbar = () => {
   return (
@@ -21,10 +22,8 @@ export const Navbar = () => {
             <Button variant="ghost" size="icon">
               <Search className="h-5 w-5 text-gray-600" />
             </Button>
-            <Button className="bg-primary-DEFAULT hover:bg-primary-dark text-white">
-              <User className="h-5 w-5 mr-2" />
-              Sign In
-            </Button>
+            <AuthDialog mode="login" />
+            <AuthDialog mode="register" />
           </div>
         </div>
       </div>
