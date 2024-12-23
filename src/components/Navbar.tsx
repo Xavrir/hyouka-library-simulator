@@ -135,14 +135,8 @@ export const Navbar = () => {
               </div>
             ) : (
               <>
-                <AuthDialog mode="login" onLoginSuccess={(email) => {
-                  setIsLoggedIn(true);
-                  setUserEmail(email);
-                }} />
-                <AuthDialog mode="register" onLoginSuccess={(email) => {
-                  setIsLoggedIn(true);
-                  setUserEmail(email);
-                }} />
+                <AuthDialog mode="login" onLoginSuccess={handleLoginSuccess} />
+                <AuthDialog mode="register" onLoginSuccess={handleLoginSuccess} />
               </>
             )}
           </div>
@@ -209,3 +203,4 @@ export const Navbar = () => {
       </CommandDialog>
     </nav>
   );
+};
