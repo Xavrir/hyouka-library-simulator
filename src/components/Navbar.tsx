@@ -10,8 +10,8 @@ import { useToast } from "@/components/ui/use-toast";
 export const Navbar = () => {
   const [open, setOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const isLoggedIn = true;
-  const userEmail = "test1";
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -31,6 +31,15 @@ export const Navbar = () => {
   };
 
   const handleBorrow = (bookId: number) => {
+    if (!isLoggedIn) {
+      toast({
+        title: "Login Required",
+        description: "Please login to borrow books",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     const book = books.find(b => b.id === bookId);
     if (book) {
       toast({
@@ -39,6 +48,16 @@ export const Navbar = () => {
       });
     }
     setOpen(false);
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setUserEmail(null);
+    toast({
+      title: "Logged out successfully",
+      description: "You have been logged out of your account",
+    });
+    navigate('/');
   };
 
   return (
@@ -77,17 +96,21 @@ export const Navbar = () => {
                 <span className="text-sm text-gray-600">Welcome, {userEmail}</span>
                 <Button 
                   variant="outline"
-                  onClick={() => {
-                    console.log("Logout clicked");
-                  }}
+                  onClick={handleLogout}
                 >
                   Logout
                 </Button>
               </div>
             ) : (
               <>
-                <AuthDialog mode="login" />
-                <AuthDialog mode="register" />
+                <AuthDialog mode="login" onLoginSuccess={(email) => {
+                  setIsLoggedIn(true);
+                  setUserEmail(email);
+                }} />
+                <AuthDialog mode="register" onLoginSuccess={(email) => {
+                  setIsLoggedIn(true);
+                  setUserEmail(email);
+                }} />
               </>
             )}
           </div>

@@ -8,9 +8,10 @@ import { useToast } from "@/components/ui/use-toast";
 interface AuthDialogProps {
   mode: "login" | "register";
   trigger?: React.ReactNode;
+  onLoginSuccess?: (email: string) => void;
 }
 
-export const AuthDialog = ({ mode, trigger }: AuthDialogProps) => {
+export const AuthDialog = ({ mode, trigger, onLoginSuccess }: AuthDialogProps) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [open, setOpen] = useState(false);
@@ -27,6 +28,7 @@ export const AuthDialog = ({ mode, trigger }: AuthDialogProps) => {
       description: `Welcome ${email}!`,
     });
     
+    onLoginSuccess?.(email);
     setOpen(false);
     setEmail("");
     setPassword("");
