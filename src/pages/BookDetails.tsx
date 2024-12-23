@@ -9,6 +9,13 @@ const BookDetails = () => {
   const { toast } = useToast();
   const book = books.find((b) => b.id === Number(id));
 
+  const handleBorrow = () => {
+    toast({
+      title: "Book borrowed!",
+      description: `You have successfully borrowed ${book?.title}`,
+    });
+  };
+
   if (!book) {
     return (
       <div className="min-h-screen bg-white">
@@ -19,13 +26,6 @@ const BookDetails = () => {
       </div>
     );
   }
-
-  const handleBorrow = () => {
-    toast({
-      title: "Book borrowed!",
-      description: `You have successfully borrowed ${book.title}`,
-    });
-  };
 
   return (
     <div className="min-h-screen bg-white">

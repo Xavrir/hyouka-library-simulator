@@ -5,16 +5,40 @@ import { Link, useNavigate } from "react-router-dom";
 import { CommandDialog, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from "@/components/ui/command";
 import { useState } from "react";
 import { books } from "@/data/books";
+import { useToast } from "@/components/ui/use-toast";
 
 export const Navbar = () => {
   const [open, setOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const isLoggedIn = true;
   const userEmail = "test1";
   const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const categories = Array.from(new Set(books.map(book => book.category)));
+  
+  const filteredBooks = selectedCategory 
+    ? books.filter(book => book.category === selectedCategory)
+    : books;
 
   const handleBookClick = (bookId: number) => {
     setOpen(false);
     navigate(`/book/${bookId}`);
+  };
+
+  const handleCategoryClick = (category: string) => {
+    setSelectedCategory(category);
+  };
+
+  const handleBorrow = (bookId: number) => {
+    const book = books.find(b => b.id === bookId);
+    if (book) {
+      toast({
+        title: "Book borrowed!",
+        description: `You have successfully borrowed ${book.title}`,
+      });
+    }
+    setOpen(false);
   };
 
   return (
@@ -71,27 +95,61 @@ export const Navbar = () => {
       </div>
 
       <CommandDialog open={open} onOpenChange={setOpen}>
-        <CommandInput placeholder="Search books or browse by category..." />
+        <CommandInput 
+          placeholder={selectedCategory ? `Search in ${selectedCategory}...` : "Search books or browse by category..."} 
+        />
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
-          <CommandGroup heading="Categories">
-            <CommandItem>Fiction</CommandItem>
-            <CommandItem>Non-Fiction</CommandItem>
-            <CommandItem>Science Fiction</CommandItem>
-            <CommandItem>Mystery</CommandItem>
-            <CommandItem>Romance</CommandItem>
-          </CommandGroup>
-          <CommandGroup heading="Books">
-            {books.map((book) => (
-              <CommandItem
-                key={book.id}
-                onSelect={() => handleBookClick(book.id)}
-                className="cursor-pointer"
-              >
-                {book.title} - {book.author}
-              </CommandItem>
-            ))}
-          </CommandGroup>
+          {!selectedCategory ? (
+            <CommandGroup heading="Categories">
+              {categories.map((category) => (
+                <CommandItem
+                  key={category}
+                  onSelect={() => handleCategoryClick(category)}
+                  className="cursor-pointer hover:bg-gray-100"
+                >
+                  {category}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          ) : (
+            <>
+              <CommandGroup heading={selectedCategory}>
+                <CommandItem
+                  onSelect={() => setSelectedCategory(null)}
+                  className="text-blue-500 cursor-pointer hover:bg-gray-100"
+                >
+                  ← Back to all categories
+                </CommandItem>
+              </CommandGroup>
+              <CommandGroup heading="Books">
+                {filteredBooks.map((book) => (
+                  <CommandItem
+                    key={book.id}
+                    className="flex justify-between items-center cursor-pointer hover:bg-gray-100"
+                  >
+                    <div
+                      onClick={() => handleBookClick(book.id)}
+                      className="flex-1"
+                    >
+                      {book.title} - {book.author}
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleBorrow(book.id);
+                      }}
+                      className="ml-2"
+                    >
+                      Borrow
+                    </Button>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </>
+          )}
         </CommandList>
       </CommandDialog>
     </nav>
