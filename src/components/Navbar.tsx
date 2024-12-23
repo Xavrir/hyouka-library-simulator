@@ -1,7 +1,7 @@
 import { BookOpen, Search, Heart, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AuthDialog } from "./AuthDialog";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { CommandDialog, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from "@/components/ui/command";
 import { useState } from "react";
 import { books } from "@/data/books";
@@ -10,6 +10,12 @@ export const Navbar = () => {
   const [open, setOpen] = useState(false);
   const isLoggedIn = true;
   const userEmail = "test1";
+  const navigate = useNavigate();
+
+  const handleBookClick = (bookId: number) => {
+    setOpen(false);
+    navigate(`/book/${bookId}`);
+  };
 
   return (
     <nav className="bg-white shadow-sm">
@@ -23,7 +29,7 @@ export const Navbar = () => {
           </div>
           
           <div className="hidden md:flex items-center space-x-6">
-            <Link to="/" className="text-gray-600 hover:text-primary-DEFAULT transition-colors">Books</Link>
+            <Link to="/" className="text-gray-600 hover:text-primary-DEFAULT transition-colors">Home</Link>
             {isLoggedIn && (
               <>
                 <Link to="/favorites" className="text-gray-600 hover:text-primary-DEFAULT transition-colors flex items-center gap-1">
@@ -77,7 +83,11 @@ export const Navbar = () => {
           </CommandGroup>
           <CommandGroup heading="Books">
             {books.map((book) => (
-              <CommandItem key={book.id}>
+              <CommandItem
+                key={book.id}
+                onSelect={() => handleBookClick(book.id)}
+                className="cursor-pointer"
+              >
                 {book.title} - {book.author}
               </CommandItem>
             ))}
