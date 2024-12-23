@@ -3,9 +3,14 @@ import { Button } from "@/components/ui/button";
 import { AuthDialog } from "./AuthDialog";
 import { Link, useNavigate } from "react-router-dom";
 import { CommandDialog, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from "@/components/ui/command";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { books } from "@/data/books";
 import { useToast } from "@/components/ui/use-toast";
+
+const VALID_CREDENTIALS = {
+  email: "rizky",
+  password: "binus123"
+};
 
 export const Navbar = () => {
   const [open, setOpen] = useState(false);
@@ -14,6 +19,15 @@ export const Navbar = () => {
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Load login state from localStorage on component mount
+  useEffect(() => {
+    const savedUser = localStorage.getItem('userEmail');
+    if (savedUser) {
+      setIsLoggedIn(true);
+      setUserEmail(savedUser);
+    }
+  }, []);
 
   const categories = Array.from(new Set(books.map(book => book.category)));
   
@@ -42,6 +56,13 @@ export const Navbar = () => {
     
     const book = books.find(b => b.id === bookId);
     if (book) {
+      // Save borrowed book to user's data
+      const userBorrowedBooks = JSON.parse(localStorage.getItem(`${userEmail}_borrowed`) || '[]');
+      if (!userBorrowedBooks.includes(bookId)) {
+        userBorrowedBooks.push(bookId);
+        localStorage.setItem(`${userEmail}_borrowed`, JSON.stringify(userBorrowedBooks));
+      }
+
       toast({
         title: "Book borrowed!",
         description: `You have successfully borrowed ${book.title}`,
@@ -53,11 +74,22 @@ export const Navbar = () => {
   const handleLogout = () => {
     setIsLoggedIn(false);
     setUserEmail(null);
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem(`${userEmail}_borrowed`);
+    localStorage.removeItem(`${userEmail}_favorites`);
     toast({
       title: "Logged out successfully",
       description: "You have been logged out of your account",
     });
     navigate('/');
+  };
+
+  const handleLoginSuccess = (email: string) => {
+    if (email === VALID_CREDENTIALS.email) {
+      setIsLoggedIn(true);
+      setUserEmail(email);
+      localStorage.setItem('userEmail', email);
+    }
   };
 
   return (
@@ -177,4 +209,3 @@ export const Navbar = () => {
       </CommandDialog>
     </nav>
   );
-};

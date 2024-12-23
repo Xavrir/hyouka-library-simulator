@@ -5,6 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 
+const VALID_CREDENTIALS = {
+  email: "rizky",
+  password: "binus123"
+};
+
 interface AuthDialogProps {
   mode: "login" | "register";
   trigger?: React.ReactNode;
@@ -20,18 +25,30 @@ export const AuthDialog = ({ mode, trigger, onLoginSuccess }: AuthDialogProps) =
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Here you would typically integrate with your authentication service
-    console.log(`${mode} attempt:`, { email, password });
-    
-    toast({
-      title: mode === "login" ? "Login Successful" : "Registration Successful",
-      description: `Welcome ${email}!`,
-    });
-    
-    onLoginSuccess?.(email);
-    setOpen(false);
-    setEmail("");
-    setPassword("");
+    if (mode === "login") {
+      if (email === VALID_CREDENTIALS.email && password === VALID_CREDENTIALS.password) {
+        toast({
+          title: "Login Successful",
+          description: `Welcome ${email}!`,
+        });
+        onLoginSuccess?.(email);
+        setOpen(false);
+        setEmail("");
+        setPassword("");
+      } else {
+        toast({
+          title: "Login Failed",
+          description: "Invalid credentials",
+          variant: "destructive"
+        });
+      }
+    } else {
+      toast({
+        title: "Registration not available",
+        description: "Please use the provided test account",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -51,11 +68,11 @@ export const AuthDialog = ({ mode, trigger, onLoginSuccess }: AuthDialogProps) =
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">Username</Label>
             <Input
               id="email"
-              type="email"
-              placeholder="Enter your email"
+              type="text"
+              placeholder="Enter your username"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required

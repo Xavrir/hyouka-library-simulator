@@ -1,19 +1,53 @@
-import { useParams } from "react-router-dom";
+import { useParams, Navigate } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { books } from "@/data/books";
 import { useToast } from "@/components/ui/use-toast";
+import { useEffect, useState } from "react";
 
 const BookDetails = () => {
   const { id } = useParams();
   const { toast } = useToast();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
   const book = books.find((b) => b.id === Number(id));
 
+  useEffect(() => {
+    const savedUser = localStorage.getItem('userEmail');
+    if (savedUser) {
+      setIsLoggedIn(true);
+      setUserEmail(savedUser);
+    }
+  }, []);
+
   const handleBorrow = () => {
-    toast({
-      title: "Book borrowed!",
-      description: `You have successfully borrowed ${book?.title}`,
-    });
+    if (!isLoggedIn) {
+      toast({
+        title: "Login Required",
+        description: "Please login to borrow books",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (userEmail) {
+      const userBorrowedBooks = JSON.parse(localStorage.getItem(`${userEmail}_borrowed`) || '[]');
+      if (!userBorrowedBooks.includes(Number(id))) {
+        userBorrowedBooks.push(Number(id));
+        localStorage.setItem(`${userEmail}_borrowed`, JSON.stringify(userBorrowedBooks));
+        
+        toast({
+          title: "Book borrowed!",
+          description: `You have successfully borrowed ${book?.title}`,
+        });
+      } else {
+        toast({
+          title: "Already borrowed",
+          description: "You have already borrowed this book",
+          variant: "destructive"
+        });
+      }
+    }
   };
 
   if (!book) {
@@ -25,6 +59,15 @@ const BookDetails = () => {
         </div>
       </div>
     );
+  }
+
+  if (!isLoggedIn) {
+    toast({
+      title: "Login Required",
+      description: "Please login to view book details",
+      variant: "destructive"
+    });
+    return <Navigate to="/" />;
   }
 
   return (
