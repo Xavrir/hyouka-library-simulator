@@ -2,10 +2,12 @@ import { Navbar } from "@/components/Navbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Heart, Trash2 } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 const Favorites = () => {
+  const { toast } = useToast();
   // Mock data - in a real app, this would come from your backend
-  const favorites = [
+  const [favorites, setFavorites] = React.useState([
     {
       id: 1,
       title: "The Great Gatsby",
@@ -20,7 +22,15 @@ const Favorites = () => {
       coverUrl: "https://example.com/1984.jpg",
       addedDate: "2024-02-19",
     }
-  ];
+  ]);
+
+  const handleRemove = (bookId: number) => {
+    setFavorites(favorites.filter(book => book.id !== bookId));
+    toast({
+      title: "Book removed",
+      description: "The book has been removed from your favorites",
+    });
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -44,8 +54,14 @@ const Favorites = () => {
                 <p className="text-gray-600 mb-4">{book.author}</p>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-500">Added: {book.addedDate}</span>
-                  <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-600">
-                    <Trash2 className="h-5 w-5" />
+                  <Button 
+                    variant="destructive" 
+                    size="sm" 
+                    onClick={() => handleRemove(book.id)}
+                    className="flex items-center gap-2"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Remove
                   </Button>
                 </div>
               </CardContent>
