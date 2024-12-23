@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Heart, Trash2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import React from 'react';
 
 const Favorites = () => {
   const { toast } = useToast();
